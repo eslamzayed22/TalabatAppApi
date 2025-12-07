@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DomainLayer.Contracts
+namespace ServiceAbstractionLayer
 {
-    public interface IDataSeeding
+    public interface IServiceManager
     {
-        Task DataSeedAsync();
+        public IProductService ProductService { get; }
     }
 }

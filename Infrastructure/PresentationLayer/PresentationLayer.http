@@ -1,0 +1,18 @@
+﻿@PresentationLayer_HostAddress = https://localhost:7194
+
+@id=0
+GET {{PresentationLayer_HostAddress}}/api/Products/{{id}}
+
+###
+
+GET {{PresentationLayer_HostAddress}}/api/Products/types
+
+###
+
+GET {{PresentationLayer_HostAddress}}/api/Products/brands
+
+###
+
+GET {{PresentationLayer_HostAddress}}/api/Products
+
+###
