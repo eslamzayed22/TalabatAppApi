@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ServiceAbstractionLayer;
+using Shared;
 using Shared.ProductDtos;
 using System;
 using System.Collections.Generic;
@@ -12,15 +13,15 @@ namespace PresentationLayer.Controllers
     [ApiController]
     [Route("api/[controller]")]
     public class ProductsController (IServiceManager _serviceManager) : ControllerBase
-    {
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllProducts()
+    { 
+        [HttpGet] //Get BaseUrl/api/products
+        public async Task<ActionResult<PaginatedResult<ProductDto>>> GetAllProducts([FromQuery]ProductQueryParameter queryParameter)
         {
-            var products = await _serviceManager.ProductService.GetAllProductsAsync();
+            var products = await _serviceManager.ProductService.GetAllProductsAsync(queryParameter);
             return Ok(products);
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:int}")] //Get BaseUrl/api/products/3
         public async Task<ActionResult<ProductDto>> GetProductById(int id)
         {
             var product = await _serviceManager.ProductService.GetProductByIdAsync(id);
@@ -28,7 +29,7 @@ namespace PresentationLayer.Controllers
         }
 
         //Get Brands
-        [HttpGet("brands")]
+        [HttpGet("brands")] //Get BaseUrl/api/products/brands
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllBrands() 
         { 
             var brands = await _serviceManager.ProductService.GetAllBrandsAsync();
@@ -36,7 +37,7 @@ namespace PresentationLayer.Controllers
         }
 
         //Get Types
-        [HttpGet("types")]
+        [HttpGet("types")]  //Get BaseUrl/api/products/types
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllTypes()
         {
             var types = await _serviceManager.ProductService.GetAllTypesAsync();
