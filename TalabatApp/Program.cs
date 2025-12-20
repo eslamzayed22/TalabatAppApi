@@ -1,5 +1,6 @@
 
 using DomainLayer.Contracts;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PersistenceLayer;
@@ -8,6 +9,11 @@ using PersistenceLayer.Repositories;
 using ServiceAbstractionLayer;
 using ServiceLayer;
 using ServiceLayer.MappingProfiles;
+using Shared.ErrorModels;
+using System.Globalization;
+using TalabatApp.CustomMiddlewares;
+using TalabatApp.Extentions;
+using TalabatApp.Factories;
 
 namespace TalabatApp
 {
@@ -19,34 +25,26 @@ namespace TalabatApp
 
             #region Add services to the container.
             // Add services to the container.
-
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-            builder.Services.AddDbContext<StoreDbContext>(options =>
-            {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-            });
-            builder.Services.AddScoped<IDataSeeding, DataSeeding>();
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IServiceManager, ServiceManager>();
-            builder.Services.AddAutoMapper((x) => { }, typeof(ServiceAssemblyReference).Assembly);
+            builder.Services.AddSwaggerServices();
+            builder.Services.AddApplicationServices();
+            builder.Services.AddInfrastructureServices(builder.Configuration);
+            builder.Services.AddWebAppServices();
 
             #endregion
 
             var app = builder.Build();
 
             #region Data Seeding
-
-            using var scope = app.Services.CreateScope();
-            var seedObj = scope.ServiceProvider.GetRequiredService<IDataSeeding>();
-
-            await seedObj.DataSeedAsync();
+            await app.SeedDatabaseAsync();
 
             #endregion
 
             #region Configure the HTTP request pipeline.
+
+            app.UseCustomExceptionMiddleware();
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -59,8 +57,8 @@ namespace TalabatApp
 
             app.UseAuthorization();
 
-
             app.MapControllers(); 
+
             #endregion
 
             app.Run();

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DomainLayer.Contracts;
+using DomainLayer.Exceptions;
 using DomainLayer.Models.ProductModels;
 using ServiceAbstractionLayer;
 using ServiceLayer.Specifications;
@@ -30,7 +31,11 @@ namespace ServiceLayer
             var repo = _unitOfWork.GetRepository<Product, int>();
             var specs = new ProductWithBrandAndTypeSpecificaions(id);
             var product = await repo.GetByIdAsync(specs);
-            return _mapper.Map<ProductDto>(product);
+
+            if(product is not null)
+               return _mapper.Map<ProductDto>(product);
+
+            throw new ProductNotFoundException(id);
         }
         public async Task<IEnumerable<BrandDto>> GetAllBrandsAsync()
         {
