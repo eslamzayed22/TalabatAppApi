@@ -1,5 +1,5 @@
 ﻿using Shared;
-using Shared.ProductDtos;
+using Shared.DataTransferObjects.ProductDtos;
 using System;
 using System.Collections;
 using System.Collections.Generic;

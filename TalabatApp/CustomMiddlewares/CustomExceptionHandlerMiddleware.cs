@@ -1,5 +1,6 @@
 ﻿using DomainLayer.Exceptions;
 using Shared.ErrorModels;
+using System;
 using System.Net;
 
 namespace TalabatApp.CustomMiddlewares
@@ -27,33 +28,36 @@ namespace TalabatApp.CustomMiddlewares
             {
                 _logger.LogError(ex, "Something Went Wrong");
 
-                //Set status code for the response
-                //httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                //Or
-                //httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-                ErrorToReturn response = HandelExceptionAsync(httpContext, ex);
-
-                //Return Object as JSON
-                await httpContext.Response.WriteAsJsonAsync(response);
+               
+                await HandelExceptionAsync(httpContext, ex);
             }
         }
 
-        private static ErrorToReturn HandelExceptionAsync(HttpContext httpContext, Exception ex)
+        private static async Task HandelExceptionAsync(HttpContext httpContext, Exception ex)
         {
-            httpContext.Response.StatusCode = ex switch
-            {
-                NotFoundException => StatusCodes.Status404NotFound,
-                _ => StatusCodes.Status500InternalServerError
-            };
-
             //Response Object
             var response = new ErrorToReturn()
             {
-                StatusCode = httpContext.Response.StatusCode,
                 ErrorMessage = ex.Message
             };
-            return response;
+
+            response.StatusCode = ex switch
+            {
+                NotFoundException => StatusCodes.Status404NotFound,
+                UnauthorizedException => StatusCodes.Status401Unauthorized,
+                BadRequestException badReqEx => GetBadRequestErrors(response, badReqEx),
+                _ => StatusCodes.Status500InternalServerError
+            };
+
+            
+
+            await httpContext.Response.WriteAsJsonAsync(response);
+        }
+
+        private static int GetBadRequestErrors(ErrorToReturn response, BadRequestException exception)
+        {
+            response.Errors = exception.Errors;
+            return StatusCodes.Status400BadRequest;
         }
 
         private static async Task HandleNotFoundEndPointAsync(HttpContext httpContext)

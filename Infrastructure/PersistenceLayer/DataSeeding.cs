@@ -1,5 +1,7 @@
 ﻿using DomainLayer.Contracts;
+using DomainLayer.Models.IdentityModels;
 using DomainLayer.Models.ProductModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PersistenceLayer.Data;
 using System;
@@ -14,10 +16,16 @@ namespace PersistenceLayer
     public class DataSeeding : IDataSeeding
     {
         private readonly StoreDbContext _storeDbContext;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public DataSeeding(StoreDbContext storeDbContext)
+        public DataSeeding(StoreDbContext storeDbContext, 
+                            UserManager<ApplicationUser> userManager,
+                            RoleManager<IdentityRole> roleManager)
         {
             _storeDbContext = storeDbContext;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
         public async Task DataSeedAsync()
         {
@@ -70,6 +78,48 @@ namespace PersistenceLayer
             {
 
             }
+        }
+
+        public async Task IdentityDataSeedAsync()
+        {
+            try
+            {
+                if (!_roleManager.Roles.Any())
+                {
+                    await _roleManager.CreateAsync(new IdentityRole("Admin"));
+                    await _roleManager.CreateAsync(new IdentityRole("SuperAdmin"));
+                }
+                if (!_userManager.Users.Any())
+                {
+                    var admin = new ApplicationUser
+                    {
+                        Email = "eslamzayed765@gmail.com",
+                        DisplayName = "Eslam Zayed",
+                        PhoneNumber = "01092059096",
+                        UserName = "eslamzayed22"
+                    };
+                    var superAdmin = new ApplicationUser
+                    {
+                        Email = "ahmedzayed765@gmail.com",
+                        DisplayName = "Ahmed Zayed",
+                        PhoneNumber = "01092059096",
+                        UserName = "aehmedzayed22"
+                    };
+
+                    await _userManager.CreateAsync(admin, "P@ssw0rd");
+                    await _userManager.CreateAsync(superAdmin, "P@ssw0rd");
+
+                    await _userManager.AddToRoleAsync(admin, "Admin");
+                    await _userManager.AddToRoleAsync(superAdmin, "SuperAdmin");
+
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
         }
     }
 }

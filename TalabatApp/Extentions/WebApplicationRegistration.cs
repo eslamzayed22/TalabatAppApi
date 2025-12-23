@@ -11,6 +11,7 @@ namespace TalabatApp.Extentions
             var seedObj = scope.ServiceProvider.GetRequiredService<IDataSeeding>();
 
             await seedObj.DataSeedAsync();
+            await seedObj.IdentityDataSeedAsync();
         }
 
         public static IApplicationBuilder UseCustomExceptionMiddleware(this IApplicationBuilder app)
