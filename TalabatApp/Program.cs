@@ -13,6 +13,7 @@ using ServiceAbstractionLayer;
 using ServiceLayer;
 using ServiceLayer.MappingProfiles;
 using Shared.ErrorModels;
+using Swashbuckle.AspNetCore.SwaggerUI;
 using System.Globalization;
 using TalabatApp.CustomMiddlewares;
 using TalabatApp.Extentions;
@@ -29,11 +30,21 @@ namespace TalabatApp
             #region Add services to the container.
             // Add services to the container.
             builder.Services.AddControllers();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", builder =>
+                {
+                    builder.AllowAnyHeader();
+                    builder.AllowAnyMethod();
+                    builder.AllowAnyOrigin();
+                });
+            });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddSwaggerServices();
             builder.Services.AddApplicationServices();
             builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddWebAppServices();
+            builder.Services.AddJWTServices(builder.Configuration);
 
 
             #endregion
@@ -53,12 +64,24 @@ namespace TalabatApp
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(options =>
+                {
+                    options.ConfigObject = new Swashbuckle.AspNetCore.SwaggerUI.ConfigObject()
+                    {
+                        DisplayRequestDuration = true
+                    };
+                    options.DocumentTitle = "Talabat API Project";
+                    options.DocExpansion(DocExpansion.None);
+                    options.EnableFilter();
+                    options.EnablePersistAuthorization();
+                });
             }
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseCors("AllowAll");
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers(); 

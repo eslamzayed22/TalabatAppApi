@@ -10,14 +10,15 @@ namespace Shared
     {
         public int? BrandId { get; set; }
         public int? TypeId { get; set; }
-        public ProductSortingOptions sortingOption { get; set; }
-        public string? SearchValue { get; set; }
+        public ProductSortingOptions Sort { get; set; }
+        public string? Search { get; set; }
+
 
         #region Pagination
         private const int DefaultPageSize = 5;
         private const int MaxPageSize = 10;
 
-        public int PageIndex { get; set; } = 1;
+        public int PageNumber { get; set; } = 1;
 
         private int pageSize = DefaultPageSize;
         public int PageSize

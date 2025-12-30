@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServiceLayer
+namespace ServiceLayer.Services
 {
     public class ProductService(IUnitOfWork _unitOfWork, IMapper _mapper) : IProductService
     {
@@ -24,7 +24,7 @@ namespace ServiceLayer
             var responseData = _mapper.Map<IEnumerable<ProductDto>>(res);
 
             var totalCount = await repo.CountAsync(new ProductCountSpecification(queryParameter));
-            return new PaginatedResult<ProductDto>(queryParameter.PageIndex, responseData.Count(), totalCount, responseData);
+            return new PaginatedResult<ProductDto>(queryParameter.PageNumber, responseData.Count(), totalCount, responseData);
         }
         public async Task<ProductDto> GetProductByIdAsync(int id)
         {

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using PresentationLayer.Attributes;
 using ServiceAbstractionLayer;
 using Shared;
 using Shared.DataTransferObjects.ProductDtos;
@@ -12,8 +14,11 @@ namespace PresentationLayer.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] 
+    //[AllowAnonymous] //Anyone - Default
     public class ProductsController (IServiceManager _serviceManager) : ControllerBase
-    { 
+    {
+        [CacheAttribute()]
         [HttpGet] //Get BaseUrl/api/products
         public async Task<ActionResult<PaginatedResult<ProductDto>>> GetAllProducts([FromQuery]ProductQueryParameter queryParameter)
         {

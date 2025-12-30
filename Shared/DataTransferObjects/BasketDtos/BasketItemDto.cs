@@ -9,7 +9,7 @@ namespace Shared.DataTransferObjects.BasketDtos
 {
     public class BasketItemDto
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string ProductName { get; set; } = null!;
         public string PictureUrl { get; set; } = null!;
         [Range(1, double.MaxValue)]

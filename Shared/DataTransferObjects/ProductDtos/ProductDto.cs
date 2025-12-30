@@ -12,8 +12,8 @@ namespace Shared.DataTransferObjects.ProductDtos
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
         public string PictureUrl { get; set; } = null!;
-        public string BrandName { get; set; } = null!;
-        public string TypeName { get; set; } = null!;
+        public string ProductBrand { get; set; } = null!;
+        public string ProductType { get; set; } = null!;
         public decimal Price { get; set; }
     }
 }
