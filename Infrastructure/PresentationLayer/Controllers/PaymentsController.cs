@@ -21,5 +21,17 @@ namespace PresentationLayer.Controllers
             return Ok(basket);
         }
 
+        //stripe listen --forward-to http://localhost:5139/api/Payments/webhook
+        [HttpPost("webhook")]
+        public async Task<IActionResult> Index()
+        {
+            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            
+            //Logic
+            await _serviceManager.PaymentService.UpdatePaymentStatus(json,
+                Request.Headers["Stripe-Signature"]);
+            return new EmptyResult();
+        }
+
     }
 }

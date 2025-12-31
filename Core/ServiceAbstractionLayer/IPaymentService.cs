@@ -10,5 +10,6 @@ namespace ServiceAbstractionLayer
     public interface IPaymentService
     {
         Task<BasketDto> CreateOrUpdatePaymentIntent(string basketId);
+        Task UpdatePaymentStatus(string jsonRequest, string stripeHeader);
     }
 }

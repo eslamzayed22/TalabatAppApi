@@ -4,6 +4,7 @@ using DomainLayer.Exceptions;
 using DomainLayer.Models.OrderModels;
 using Microsoft.Extensions.Configuration;
 using ServiceAbstractionLayer;
+using ServiceLayer.Specifications.OrderModelsSpecifications;
 using Shared.DataTransferObjects.BasketDtos;
 using Stripe;
 using System;
@@ -70,5 +71,51 @@ namespace ServiceLayer.Services
             return _mapper.Map<BasketDto>(basket);
 
         }
+
+        public async Task UpdatePaymentStatus(string jsonRequest, string stripeHeader)
+        {
+            var stripeEvent = EventUtility.ConstructEvent(jsonRequest,
+                stripeHeader, _configuration["StripeSettings:EndPointSecret"]);
+
+            var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+
+            if (stripeEvent.Type == EventTypes.PaymentIntentPaymentFailed)
+            {
+                await UpdatePaymentFailedAsync(paymentIntent.Id);
+            }
+            else if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
+            {
+                await UpdatePaymentReceivedAsync(paymentIntent.Id);
+            }
+            // ... handle other event types
+            else
+            {
+                Console.WriteLine("Unhandled event type: {0}", stripeEvent.Type);
+            }
+        }
+
+        private async Task UpdatePaymentReceivedAsync(string paymentIntentId)
+        {
+            var order = await _unitOfWork.GetRepository<Order, Guid>()
+                .GetByIdAsync(new OrderWithPaymentIntentSpecifications(paymentIntentId));
+
+            order.OrderStatus = OrderStatus.PaymentReceived;
+
+            _unitOfWork.GetRepository<Order, Guid>().Update(order);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        private async Task UpdatePaymentFailedAsync(string paymentIntentId)
+        {
+            var order = await _unitOfWork.GetRepository<Order, Guid>()
+                .GetByIdAsync(new OrderWithPaymentIntentSpecifications(paymentIntentId));
+
+            order.OrderStatus = OrderStatus.PaymentFailed;
+
+            _unitOfWork.GetRepository<Order, Guid>().Update(order);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+
     }
 }

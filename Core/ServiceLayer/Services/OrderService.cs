@@ -29,6 +29,7 @@ namespace ServiceLayer.Services
 
             ArgumentNullException.ThrowIfNull(basket.PaymentIntentId);
             var _orderRepo = _unitOfWork.GetRepository<Order, Guid>();
+
             var existingOrder = await _orderRepo.GetByIdAsync(new OrderWithPaymentIntentSpecifications(basket.PaymentIntentId));
             if (existingOrder is not null)
             {
@@ -84,7 +85,8 @@ namespace ServiceLayer.Services
         {
             var specs = new OrderSpecifications(email);
             var _orderRepo = _unitOfWork.GetRepository<Order, Guid>();
-            var orders = _orderRepo.GetAllAsync(specs);
+
+            var orders = await _orderRepo.GetAllAsync(specs);
             return _mapper.Map<IEnumerable<OrderToReturnDto>>(orders);
 
         }
@@ -93,7 +95,7 @@ namespace ServiceLayer.Services
         {
             var specs = new OrderSpecifications(id);
             var _orderRepo = _unitOfWork.GetRepository<Order, Guid>();
-            var order = _orderRepo.GetByIdAsync(specs);
+            var order = await _orderRepo.GetByIdAsync(specs);
             return _mapper.Map<OrderToReturnDto>(order);
 
         }
